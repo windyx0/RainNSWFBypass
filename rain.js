@@ -157,7 +157,7 @@
         patch.c = [];
         return workingRetVal;
       }
-      function unpatch5(patch, hookId, type) {
+      function unpatch4(patch, hookId, type) {
         if (!patch || !patch[type].delete(hookId)) return false;
         var funcParent = patch.p;
         if (funcParent && patchTypes.every((t) => patch[t].size === 0)) {
@@ -200,7 +200,7 @@
           })) funcParent[funcName] = replaceProxy;
         }
         var hookId = /* @__PURE__ */ Symbol();
-        var unpatchThisPatch = () => unpatch5(funcPatch, hookId, patchType);
+        var unpatchThisPatch = () => unpatch4(funcPatch, hookId, patchType);
         if (oneTime) funcPatch.c.push(unpatchThisPatch);
         funcPatch[patchType].set(hookId, callback);
         return unpatchThisPatch;
@@ -771,13 +771,13 @@
       if (typeof args[1][_patcherDelaySymbol] === "function") {
         var delayCallback = args[1][_patcherDelaySymbol];
         var cancel = false;
-        var unpatch5 = () => cancel = true;
+        var unpatch4 = () => cancel = true;
         delayCallback((target) => {
           if (cancel) return;
           args[1] = target;
-          unpatch5 = fn.apply(this, args);
+          unpatch4 = fn.apply(this, args);
         });
-        return () => unpatch5();
+        return () => unpatch4();
       }
       return fn.apply(this, args);
     }
@@ -785,13 +785,13 @@
       var thenable = args[1];
       if (!thenable || !("then" in thenable)) throw new Error("target is not a then-able object");
       var cancel = false;
-      var unpatch5 = () => cancel = true;
+      var unpatch4 = () => cancel = true;
       thenable.then((target) => {
         if (cancel) return;
         args[1] = target;
-        unpatch5 = patchFn2.apply(this, args);
+        unpatch4 = patchFn2.apply(this, args);
       });
-      return () => unpatch5();
+      return () => unpatch4();
     }
     return Object.assign(patchFn2, {
       await: promisePatchFn
@@ -825,11 +825,11 @@
   function patchAssets(module) {
     if (assetsModule) return;
     assetsModule = module;
-    var unpatch5 = after("registerAsset", assetsModule, () => {
+    var unpatch4 = after("registerAsset", assetsModule, () => {
       var moduleId = getImportingModuleId();
       if (moduleId !== -1) indexAssetModuleFlag(moduleId);
     });
-    return unpatch5;
+    return unpatch4;
   }
   var assetsModule;
   var init_patches = __esm({
@@ -3272,7 +3272,7 @@
           });
         },
         stop() {
-          for (var unpatch5 of patches) unpatch5();
+          for (var unpatch4 of patches) unpatch4();
           delete MultiAccountStore.canUseMultiAccountNotifications;
         }
       });
@@ -3857,7 +3857,7 @@
           }));
         },
         stop() {
-          for (var unpatch5 of patches2) unpatch5();
+          for (var unpatch4 of patches2) unpatch4();
         }
       });
     }
@@ -5071,7 +5071,7 @@
   }
   function createUserBGPatcher(onEnabled) {
     return () => {
-      var unpatch5 = after("getUserBannerURL", getUserBannerURL, ([user]) => {
+      var unpatch4 = after("getUserBannerURL", getUserBannerURL, ([user]) => {
         if (!onEnabled() || !userBgData?.users) return;
         var { endpoint, bucket, prefix: prefix2, users } = userBgData;
         var customBanner = Object.entries(users).find(([userId2]) => userId2 === user?.id);
@@ -5080,7 +5080,7 @@
           return `${endpoint}/${bucket}/${prefix2}${userId}?${etag}`;
         }
       });
-      return unpatch5;
+      return unpatch4;
     };
   }
   var dataBannerURL, userBgData, getUserBannerURL;
@@ -5374,8 +5374,8 @@
           }
         },
         stop() {
-          for (var unpatch5 of unpatches) {
-            unpatch5?.();
+          for (var unpatch4 of unpatches) {
+            unpatch4?.();
           }
           unpatches = [];
         },
@@ -5624,7 +5624,7 @@
         },
         stop() {
           try {
-            for (var unpatch5 of unpatches2) unpatch5();
+            for (var unpatch4 of unpatches2) unpatch4();
           } catch (error) {
             logger.log(error);
           }
@@ -5747,7 +5747,7 @@
           }));
         },
         stop() {
-          for (var unpatch5 of patches4) unpatch5();
+          for (var unpatch4 of patches4) unpatch4();
         }
       });
     }
@@ -6365,8 +6365,8 @@
           UserStore3?.emitChange?.();
         },
         stop() {
-          for (var unpatch5 of patches5) {
-            unpatch5();
+          for (var unpatch4 of patches5) {
+            unpatch4();
           }
           patches5 = [];
         }
@@ -6416,7 +6416,7 @@
           }));
         },
         stop() {
-          for (var unpatch5 of patches6) unpatch5();
+          for (var unpatch4 of patches6) unpatch4();
         }
       });
     }
@@ -7136,13 +7136,13 @@
         return null;
       }).call(this);
     };
-    var unpatch5 = () => {
+    var unpatch4 = () => {
       CloudUpload.prototype.reactNativeCompressAndExtractData = original;
       return true;
     };
     var sendMessagePatch = patchSendMessage();
     return [
-      unpatch5,
+      unpatch4,
       sendMessagePatch
     ];
   }
@@ -7588,7 +7588,7 @@ ${pendingInsertLink}` : pendingInsertLink;
           patches8.push(...getUploaderPatch());
         },
         stop() {
-          for (var unpatch5 of patches8) unpatch5();
+          for (var unpatch4 of patches8) unpatch4();
           patches8.length = 0;
         },
         settings: UploaderSettings
@@ -7929,7 +7929,7 @@ ${pendingInsertLink}` : pendingInsertLink;
           })();
         },
         stop() {
-          for (var unpatch5 of unpatches3) unpatch5?.();
+          for (var unpatch4 of unpatches3) unpatch4?.();
           unpatches3.length = 0;
         }
       });
@@ -8517,9 +8517,9 @@ ${pendingInsertLink}` : pendingInsertLink;
           })();
         },
         stop() {
-          patches9.forEach((unpatch5) => {
+          patches9.forEach((unpatch4) => {
             try {
-              unpatch5();
+              unpatch4();
             } catch (e) {
               logger.error(e);
             }
@@ -8574,7 +8574,7 @@ ${pendingInsertLink}` : pendingInsertLink;
           }));
         },
         stop() {
-          for (var unpatch5 of patches10) unpatch5();
+          for (var unpatch4 of patches10) unpatch4();
           patches10.length = 0;
         }
       });
@@ -9956,7 +9956,7 @@ ${pendingInsertLink}` : pendingInsertLink;
           })();
         },
         stop() {
-          for (var unpatch5 of patches11) unpatch5();
+          for (var unpatch4 of patches11) unpatch4();
           patches11.length = 0;
           useUsersDecorationsStore.getState().clear();
           useCurrentUserDecorationsStore.getState().clear();
@@ -11609,7 +11609,7 @@ ${pendingInsertLink}` : pendingInsertLink;
     return connected;
   }
   function patchLogHook() {
-    var unpatch5 = after("nativeLoggingHook", globalThis, (args) => {
+    var unpatch4 = after("nativeLoggingHook", globalThis, (args) => {
       if (socket?.readyState === WebSocket.OPEN) {
         sendLog(args[1] === "error" ? "error" : args[1] === "warn" ? "warn" : "default", args[0]);
       }
@@ -11617,7 +11617,7 @@ ${pendingInsertLink}` : pendingInsertLink;
     });
     return () => {
       socket && socket.close();
-      unpatch5();
+      unpatch4();
     };
   }
   function getDebugInfo() {
@@ -11856,7 +11856,7 @@ ${pendingInsertLink}` : pendingInsertLink;
       after("jsx", jsxRuntime2, callback),
       after("jsxs", jsxRuntime2, callback)
     ];
-    return () => patches34.forEach((unpatch5) => unpatch5());
+    return () => patches34.forEach((unpatch4) => unpatch4());
   }
   var callbacks, jsxRuntime2;
   var init_jsx = __esm({
@@ -12377,7 +12377,7 @@ ${pendingInsertLink}` : pendingInsertLink;
 
   // src/plugins/expressionutils/patchMessageEmojiActionSheet.ts
   function patchSheet(funcName, sheetModule, once) {
-    var unpatch5 = after(funcName, sheetModule, (args, res) => {
+    var unpatch4 = after(funcName, sheetModule, (args, res) => {
       var emojiNode = args[0]?.emojiNode;
       if (!emojiNode?.src) return;
       var emoji = {
@@ -12420,10 +12420,10 @@ ${pendingInsertLink}` : pendingInsertLink;
         }
       });
       if (once) {
-        unpatch5();
+        unpatch4();
       }
     });
-    return unpatch5;
+    return unpatch4;
   }
   function patchMessageEmojiActionSheet() {
     var LazyActionSheet9 = findByProps("openLazy", "hideActionSheet");
@@ -12686,8 +12686,8 @@ ${pendingInsertLink}` : pendingInsertLink;
         start() {
           return _async_to_generator(function* () {
             try {
-              var unpatch5 = patchMessageEmojiActionSheet();
-              unpatches4.push(unpatch5);
+              var unpatch4 = patchMessageEmojiActionSheet();
+              unpatches4.push(unpatch4);
               var stickerUnpatch = patchStickerActionSheet();
               unpatches4.push(stickerUnpatch);
             } catch (e) {
@@ -12696,7 +12696,7 @@ ${pendingInsertLink}` : pendingInsertLink;
           })();
         },
         stop() {
-          for (var unpatch5 of unpatches4) unpatch5();
+          for (var unpatch4 of unpatches4) unpatch4();
           unpatches4.length = 0;
         },
         settings: settings_default2
@@ -12848,7 +12848,7 @@ ${pendingInsertLink}` : pendingInsertLink;
 
   // src/plugins/fakenitro/patches/removeGetNitroButton.ts
   function patchSheet2(funcName, sheetModule, once) {
-    var unpatch5 = after(funcName, sheetModule, (args, res) => {
+    var unpatch4 = after(funcName, sheetModule, (args, res) => {
       var emojiNode = args[0]?.emojiNode;
       if (!emojiNode?.src) return;
       var view = res?.props?.children?.props?.children;
@@ -12874,10 +12874,10 @@ ${pendingInsertLink}` : pendingInsertLink;
         }
       });
       if (once) {
-        unpatch5();
+        unpatch4();
       }
     });
-    return unpatch5;
+    return unpatch4;
   }
   function getPatches4() {
     return [
@@ -13223,7 +13223,7 @@ ${pendingInsertLink}` : pendingInsertLink;
           patches13.push(...getPatches4());
         },
         stop() {
-          for (var unpatch5 of patches13) unpatch5();
+          for (var unpatch4 of patches13) unpatch4();
           patches13.length = 0;
         },
         settings: settings_default3
@@ -14187,8 +14187,8 @@ ${pendingInsertLink}` : pendingInsertLink;
           })();
         },
         stop() {
-          for (var unpatch5 of patches15) {
-            if (typeof unpatch5 === "function") unpatch5();
+          for (var unpatch4 of patches15) {
+            if (typeof unpatch4 === "function") unpatch4();
           }
           patches15 = [];
           if (intervalId) clearInterval(intervalId);
@@ -14528,9 +14528,9 @@ ${pendingInsertLink}` : pendingInsertLink;
           }
         },
         stop() {
-          for (var unpatch5 of unpatches5) {
+          for (var unpatch4 of unpatches5) {
             try {
-              unpatch5();
+              unpatch4();
             } catch (e) {
               console.error("[HiddenChannels] Error during unpatch:", e);
             }
@@ -14703,7 +14703,7 @@ ${pendingInsertLink}` : pendingInsertLink;
           patches16.push(...getPatches7());
         },
         stop() {
-          for (var unpatch5 of patches16) unpatch5();
+          for (var unpatch4 of patches16) unpatch4();
           patches16.length = 0;
         },
         settings: Settings4
@@ -14985,7 +14985,7 @@ ${pendingInsertLink}` : pendingInsertLink;
           }).call(this);
         },
         stop() {
-          for (var unpatch5 of patches17) unpatch5();
+          for (var unpatch4 of patches17) unpatch4();
         },
         settings: settings_default4
       });
@@ -15173,7 +15173,7 @@ ${pendingInsertLink}` : pendingInsertLink;
       ret[SYM_PATCHED] = true;
     }));
     return () => {
-      for (var unpatch5 of patches34) unpatch5();
+      for (var unpatch4 of patches34) unpatch4();
     };
   }
   var ForumPostLongPressActionSheet, ChannelLongPressActionSheet, SYM_PATCHED, allowedChannelTypes;
@@ -15372,8 +15372,8 @@ ${pendingInsertLink}` : pendingInsertLink;
           patches18.push(patchActionSheets());
         },
         stop() {
-          for (var unpatch5 of patches18) {
-            unpatch5();
+          for (var unpatch4 of patches18) {
+            unpatch4();
           }
           patches18 = [];
         }
@@ -16109,9 +16109,9 @@ ${pendingInsertLink}` : pendingInsertLink;
           patches19.push(patchRowManager());
         },
         stop() {
-          for (var unpatch5 of patches19) {
+          for (var unpatch4 of patches19) {
             try {
-              unpatch5();
+              unpatch4();
             } catch (e) {
               console.error("[MessageLogger] Error unpatching:", e);
             }
@@ -16202,7 +16202,7 @@ ${pendingInsertLink}` : pendingInsertLink;
           }));
         },
         stop() {
-          for (var unpatch5 of patches20) unpatch5();
+          for (var unpatch4 of patches20) unpatch4();
         }
       });
     }
@@ -19345,7 +19345,7 @@ ${pendingInsertLink}` : pendingInsertLink;
           }));
         },
         stop() {
-          for (var unpatch5 of patches21) unpatch5();
+          for (var unpatch4 of patches21) unpatch4();
           patches21.length = 0;
         },
         settings: PastelizeSettings
@@ -20442,7 +20442,7 @@ ${pendingInsertLink}` : pendingInsertLink;
           patches22.push(patchUserProfile_default());
         },
         stop() {
-          for (var unpatch5 of patches22) unpatch5();
+          for (var unpatch4 of patches22) unpatch4();
           patches22.length = 0;
         }
       });
@@ -20708,7 +20708,7 @@ ${pendingInsertLink}` : pendingInsertLink;
           patches23.push(unpatchBanner());
         },
         stop() {
-          for (var unpatch5 of patches23) unpatch5();
+          for (var unpatch4 of patches23) unpatch4();
         }
       });
     }
@@ -21169,7 +21169,7 @@ ${pendingInsertLink}` : pendingInsertLink;
           })();
         },
         stop() {
-          for (var unpatch5 of unpatches7) unpatch5();
+          for (var unpatch4 of unpatches7) unpatch4();
           unpatches7.length = 0;
         },
         settings: Settings7
@@ -22218,9 +22218,9 @@ render().catch(error => {
         if (key !== "MessageLongPressActionSheet" || !message?.content) return;
         Promise.resolve(component).then((instance) => {
           if (!instance || typeof instance.default !== "function") return;
-          var unpatch5 = after("default", instance, (_2, sheet) => {
+          var unpatch4 = after("default", instance, (_2, sheet) => {
             React2.useEffect(() => () => {
-              unpatch5();
+              unpatch4();
             }, []);
             try {
               injectQuoteRow(sheet, message);
@@ -22339,8 +22339,8 @@ render().catch(error => {
           patches24.push(ActionSheet_default());
         },
         stop() {
-          for (var unpatch5 of patches24) {
-            if (typeof unpatch5 === "function") unpatch5();
+          for (var unpatch4 of patches24) {
+            if (typeof unpatch4 === "function") unpatch4();
           }
           patches24.length = 0;
         },
@@ -22354,7 +22354,7 @@ render().catch(error => {
   __export(RainNSFWBypass_exports, {
     default: () => RainNSFWBypass_default
   });
-  var unpatch4, RainNSFWBypass_default;
+  var unpatchUser, unpatchAgeGate, RainNSFWBypass_default;
   var init_RainNSFWBypass = __esm({
     "src/plugins/RainNSFWBypass/index.ts"() {
       "use strict";
@@ -22373,28 +22373,48 @@ render().catch(error => {
           }
         ],
         id: "RainNSFWBypass",
-        version: "1.0.1",
+        version: "1.0.3",
         start() {
           var UserStore3 = findByProps("getCurrentUser");
           if (UserStore3) {
-            unpatch4 = after("getCurrentUser", UserStore3, (_2, user2) => {
+            unpatchUser = after("getCurrentUser", UserStore3, (_2, user2) => {
               if (user2) {
-                user2.nsfwAllowed = true;
-                user2.nsfw_allowed = true;
-                user2.ageVerificationStatus = 1;
+                try {
+                  Object.defineProperty(user2, "nsfwAllowed", {
+                    get: () => true,
+                    configurable: true,
+                    enumerable: true
+                  });
+                  Object.defineProperty(user2, "nsfw_allowed", {
+                    get: () => true,
+                    configurable: true,
+                    enumerable: true
+                  });
+                } catch (e) {
+                }
               }
               return user2;
             });
             var user = UserStore3.getCurrentUser();
             if (user) {
-              user.nsfwAllowed = true;
-              user.nsfw_allowed = true;
-              user.ageVerificationStatus = 1;
+              try {
+                Object.defineProperty(user, "nsfwAllowed", {
+                  get: () => true,
+                  configurable: true,
+                  enumerable: true
+                });
+              } catch (e) {
+              }
             }
+          }
+          var AgeGate = findByProps("isAgeGateVerified");
+          if (AgeGate) {
+            unpatchAgeGate = after("isAgeGateVerified", AgeGate, () => true);
           }
         },
         stop() {
-          if (unpatch4) unpatch4();
+          if (unpatchUser) unpatchUser();
+          if (unpatchAgeGate) unpatchAgeGate();
         }
       });
     }
@@ -23481,7 +23501,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
           })();
         },
         stop() {
-          for (var unpatch5 of patches25) unpatch5();
+          for (var unpatch4 of patches25) unpatch4();
         },
         settings: Settings_default
       });
@@ -24158,7 +24178,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
           patches26.push(onLoad());
         },
         stop() {
-          for (var unpatch5 of patches26) unpatch5();
+          for (var unpatch4 of patches26) unpatch4();
         }
       });
     }
@@ -24195,7 +24215,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
           }));
         },
         stop() {
-          for (var unpatch5 of patches27) unpatch5();
+          for (var unpatch4 of patches27) unpatch4();
           patches27.length = 0;
         }
       });
@@ -24409,7 +24429,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
       details_default = (() => {
         var patches34 = [];
         findByTypeNameAll("UserRow").forEach((UserRow) => patches34.push(after("type", UserRow, (args, res) => rowPatch(args, res))));
-        return () => patches34.forEach((unpatch5) => unpatch5());
+        return () => patches34.forEach((unpatch4) => unpatch4());
       });
     }
   });
@@ -24471,7 +24491,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
             }
           }));
         }
-        return () => patches34.forEach((unpatch5) => unpatch5());
+        return () => patches34.forEach((unpatch4) => unpatch4());
       });
     }
   });
@@ -24577,7 +24597,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
           patches28.push(details_default());
         },
         stop() {
-          for (var unpatch5 of patches28) unpatch5();
+          for (var unpatch4 of patches28) unpatch4();
           patches28.length = 0;
         },
         settings: Settings10
@@ -25047,10 +25067,10 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
       var content = msg?.message?.content;
       if (!content) return;
       component.then((instance) => {
-        var unpatch5 = after("default", instance, (_2, res) => {
+        var unpatch4 = after("default", instance, (_2, res) => {
           React2.useEffect(() => {
             return () => {
-              unpatch5();
+              unpatch4();
             };
           }, []);
           var rules = [
@@ -25481,7 +25501,7 @@ ${ruleJson}
           patches30.push(patchMessageLongPressActionSheet());
         },
         stop() {
-          for (var unpatch5 of patches30) unpatch5();
+          for (var unpatch4 of patches30) unpatch4();
           patches30.length = 0;
         },
         settings: Settings11
@@ -25826,10 +25846,10 @@ ${ruleJson}
         var message = msg?.message;
         if (key !== "MessageLongPressActionSheet" || !message) return;
         component.then((instance) => {
-          var unpatch5 = after("default", instance, (_2, component2) => {
+          var unpatch4 = after("default", instance, (_2, component2) => {
             React2.useEffect(() => {
               return () => {
-                unpatch5();
+                unpatch4();
               };
             }, []);
             var actionSheetContainer = findInReactTree(component2, (x2) => Array.isArray(x2) && x2[0]?.type?.name === "ActionSheetRowGroup");
@@ -26127,8 +26147,8 @@ ${ruleJson}
           patches31.push(ActionSheet_default2());
         },
         stop() {
-          for (var unpatch5 of patches31) {
-            if (typeof unpatch5 === "function") unpatch5();
+          for (var unpatch4 of patches31) {
+            if (typeof unpatch4 === "function") unpatch4();
           }
           patches31.length = 0;
         },
@@ -26259,9 +26279,9 @@ ${ruleJson}
           var message = msg?.message;
           if (key !== "MessageLongPressActionSheet" || !message) return;
           component.then((instance) => {
-            var unpatch5 = after("default", instance, (_2, component2) => {
+            var unpatch4 = after("default", instance, (_2, component2) => {
               React2.useEffect(() => () => {
-                unpatch5();
+                unpatch4();
               }, []);
               var navigator = () => /* @__PURE__ */ jsx(Navigator, {
                 initialRouteName: "RawPage",
@@ -26357,7 +26377,7 @@ ${ruleJson}
           patches32.push(...viewraw_default());
         },
         stop() {
-          for (var unpatch5 of patches32) unpatch5();
+          for (var unpatch4 of patches32) unpatch4();
         }
       });
     }
@@ -28672,21 +28692,21 @@ ${ruleJson}
   // src/plugins/_core/rainenhancements/notrack/index.ts
   function patchModDetection() {
     var clientModUtils = findByProps("usesClientMods");
-    var unpatch5 = instead("usesClientMods", clientModUtils, (_args, _orig) => {
+    var unpatch4 = instead("usesClientMods", clientModUtils, (_args, _orig) => {
       return false;
     });
-    return unpatch5;
+    return unpatch4;
   }
   function patchNetwork() {
     var analyticsTest = /client-analytics\.braintreegateway\.com|discord\.com\/api\/v9\/(science|track)|app\.adjust\..*|.*\.ingest\.sentry\.io/;
     try {
-      var unpatch5 = instead("send", XMLHttpRequest.prototype, function(args, orig) {
+      var unpatch4 = instead("send", XMLHttpRequest.prototype, function(args, orig) {
         if (this._url && analyticsTest.test(this._url)) {
           return void 0;
         }
         return orig.apply(this, args);
       });
-      return unpatch5;
+      return unpatch4;
     } catch (e) {
       return () => false;
     }
@@ -28797,7 +28817,7 @@ ${ruleJson}
 
   // src/plugins/_core/rainenhancements/realmoji/patches/patchEmojiActionSheet.tsx
   function patchSheet3(funcName, sheetModule, once) {
-    var unpatch5 = after(funcName, sheetModule, (args, res) => {
+    var unpatch4 = after(funcName, sheetModule, (args, res) => {
       var emojiNode = args[0]?.emojiNode;
       if (!emojiNode?.src || !emojiNode?.id) return;
       if (!emojiNode.alt.endsWith("_rainenhancements") && !emojiNode.fake) return;
@@ -28815,10 +28835,10 @@ ${ruleJson}
         });
       });
       if (once) {
-        unpatch5();
+        unpatch4();
       }
     });
-    return unpatch5;
+    return unpatch4;
   }
   function patchEmojiActionSheet() {
     var LazyActionSheet9 = findByProps("openLazy", "hideActionSheet");
