@@ -8599,12 +8599,20 @@ ${pendingInsertLink}` : pendingInsertLink;
         children: /* @__PURE__ */ jsxs(TableRowGroup, {
           title: "\u0417\u0430\u0433\u0440\u0443\u0437\u0447\u0438\u043A Vencord/\u041A\u0430\u0441\u0442\u043E\u043C \u043F\u043B\u0430\u0433\u0438\u043D\u043E\u0432",
           children: [
-            /* @__PURE__ */ jsx(TextInput, {
-              label: "\u041A\u043E\u0434 \u043F\u043B\u0430\u0433\u0438\u043D\u0430 \u0438\u043B\u0438 URL (RAW)",
+            /* @__PURE__ */ jsx(ReactNative.TextInput, {
               placeholder: "https://raw.githubusercontent.com/... \u0438\u043B\u0438 \u043A\u043E\u0434",
               value: input,
-              onChange: setInput,
-              multiline: true
+              onChangeText: setInput,
+              multiline: true,
+              style: {
+                minHeight: 150,
+                borderColor: "#444",
+                borderWidth: 1,
+                borderRadius: 8,
+                padding: 12,
+                color: "white",
+                textAlignVertical: "top"
+              }
             }),
             /* @__PURE__ */ jsx(Button, {
               text: "\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u0438 \u0437\u0430\u043F\u0443\u0441\u0442\u0438\u0442\u044C",
@@ -8631,6 +8639,7 @@ ${pendingInsertLink}` : pendingInsertLink;
       init_toasts();
       init_metro();
       import_react10 = __toESM(require_react());
+      init_common();
     }
   });
 
