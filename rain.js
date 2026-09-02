@@ -8543,6 +8543,39 @@ ${pendingInsertLink}` : pendingInsertLink;
     }
   });
 
+  // src/plugins/CustomLoader/index.ts
+  var CustomLoader_exports = {};
+  __export(CustomLoader_exports, {
+    default: () => CustomLoader_default
+  });
+  var CustomLoader_default;
+  var init_CustomLoader = __esm({
+    "src/plugins/CustomLoader/index.ts"() {
+      "use strict";
+      init_asyncIteratorSymbol();
+      init_promiseAllSettled();
+      init_plugins3();
+      init_toasts();
+      CustomLoader_default = definePlugin({
+        name: "CustomLoader",
+        description: "\u041F\u043E\u0437\u0432\u043E\u043B\u044F\u0435\u0442 \u0437\u0430\u0433\u0440\u0443\u0436\u0430\u0442\u044C \u043A\u0430\u0441\u0442\u043E\u043C\u043D\u044B\u0435 \u043F\u043B\u0430\u0433\u0438\u043D\u044B (\u0447\u0435\u0440\u0435\u0437 URL, \u043F\u0443\u0442\u044C \u043A \u0444\u0430\u0439\u043B\u0443 \u0438\u043B\u0438 \u0432\u0441\u0442\u0430\u0432\u043A\u0443 \u043A\u043E\u0434\u0430). \u041D\u0430\u0445\u043E\u0434\u0438\u0442\u0441\u044F \u0432 \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0435.",
+        author: [
+          {
+            name: "WindyxCXX",
+            id: 0n
+          }
+        ],
+        id: "CustomLoader",
+        version: "1.0.0",
+        start() {
+          showToast("CustomLoader \u0437\u0430\u043F\u0443\u0449\u0435\u043D!");
+        },
+        stop() {
+        }
+      });
+    }
+  });
+
   // src/plugins/dashless/index.ts
   var dashless_exports = {};
   __export(dashless_exports, {
@@ -22354,7 +22387,7 @@ render().catch(error => {
   __export(RainNSFWBypass_exports, {
     default: () => RainNSFWBypass_default
   });
-  var unpatchUser, unpatchAgeGate, RainNSFWBypass_default;
+  var bypassInterval, RainNSFWBypass_default;
   var init_RainNSFWBypass = __esm({
     "src/plugins/RainNSFWBypass/index.ts"() {
       "use strict";
@@ -22362,10 +22395,9 @@ render().catch(error => {
       init_promiseAllSettled();
       init_plugins3();
       init_metro();
-      init_patcher();
       RainNSFWBypass_default = definePlugin({
         name: "RainNSFWBypass",
-        description: "Age Confirmation Bypass Plugin For Rain",
+        description: "Age Confirmation Bypass Plugin For Rain (Runtime Mode)",
         author: [
           {
             name: "WindyxCXX",
@@ -22373,48 +22405,23 @@ render().catch(error => {
           }
         ],
         id: "RainNSFWBypass",
-        version: "1.0.3",
+        version: "1.0.4",
         start() {
-          var UserStore3 = findByProps("getCurrentUser");
-          if (UserStore3) {
-            unpatchUser = after("getCurrentUser", UserStore3, (_2, user2) => {
-              if (user2) {
-                try {
-                  Object.defineProperty(user2, "nsfwAllowed", {
-                    get: () => true,
-                    configurable: true,
-                    enumerable: true
-                  });
-                  Object.defineProperty(user2, "nsfw_allowed", {
-                    get: () => true,
-                    configurable: true,
-                    enumerable: true
-                  });
-                } catch (e) {
-                }
-              }
-              return user2;
-            });
-            var user = UserStore3.getCurrentUser();
-            if (user) {
-              try {
-                Object.defineProperty(user, "nsfwAllowed", {
-                  get: () => true,
-                  configurable: true,
-                  enumerable: true
-                });
-              } catch (e) {
+          bypassInterval = setInterval(() => {
+            var UserStore3 = findByProps("getCurrentUser");
+            if (UserStore3) {
+              var user = UserStore3.getCurrentUser();
+              if (user) {
+                user.nsfwAllowed = true;
+                user.nsfw_allowed = true;
+                user.ageVerificationStatus = 1;
+                clearInterval(bypassInterval);
               }
             }
-          }
-          var AgeGate = findByProps("isAgeGateVerified");
-          if (AgeGate) {
-            unpatchAgeGate = after("isAgeGateVerified", AgeGate, () => true);
-          }
+          }, 1e3);
         },
         stop() {
-          if (unpatchUser) unpatchUser();
-          if (unpatchAgeGate) unpatchAgeGate();
+          if (bypassInterval) clearInterval(bypassInterval);
         }
       });
     }
@@ -34873,6 +34880,14 @@ Type: ${asset.type}`,
             return (init_customeffects(), __toCommonJS(customeffects_exports)).default;
           } catch (error) {
             console.error("[Failed to compile 'customeffects' from './plugins/customeffects':", error.message);
+            return null;
+          }
+        },
+        get "CustomLoader"() {
+          try {
+            return (init_CustomLoader(), __toCommonJS(CustomLoader_exports)).default;
+          } catch (error) {
+            console.error("[Failed to compile 'CustomLoader' from './plugins/CustomLoader':", error.message);
             return null;
           }
         },
