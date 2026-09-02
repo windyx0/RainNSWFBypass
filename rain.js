@@ -8567,6 +8567,8 @@ ${pendingInsertLink}` : pendingInsertLink;
             findByProps,
             findByStoreName
           };
+          if (req === "@metro") return metro_exports;
+          if (req === "@api/patcher" || req === "spitroast" || req === "sublimation") return patcher_exports;
           return globalThis.require ? globalThis.require(req) : null;
         };
         var func = new Function("module", "exports", "require", "metro", code);
@@ -8638,6 +8640,7 @@ ${pendingInsertLink}` : pendingInsertLink;
       import_react_native18 = __toESM(require_react_native());
       init_toasts();
       init_metro();
+      init_patcher();
       import_react10 = __toESM(require_react());
       init_common();
     }
