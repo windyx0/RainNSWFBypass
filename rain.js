@@ -11087,7 +11087,7 @@ ${pendingInsertLink}` : pendingInsertLink;
         }
       });
     });
-    var unpatches8 = [
+    var unpatches9 = [
       before("updateTheme", NativeThemeModule, callback),
       instead("resolveSemanticColor", tokenReference.default.meta ?? tokenReference.default.internal, (args, orig) => {
         if (!_colorRef.current) return orig(...args);
@@ -11127,7 +11127,7 @@ ${pendingInsertLink}` : pendingInsertLink;
         });
       }
     ];
-    return () => unpatches8.forEach((p) => p());
+    return () => unpatches9.forEach((p) => p());
   }
   function extractInfo(themeName, colorObj) {
     var propName = colorObj[extractInfo._sym ??= Object.getOwnPropertySymbols(colorObj)[0]];
@@ -22492,7 +22492,7 @@ render().catch(error => {
   __export(RainNSFWBypass_exports, {
     default: () => RainNSFWBypass_default
   });
-  var unpatchUser, unpatchAgeGate, RainNSFWBypass_default;
+  var unpatches8, overrideUser, overrideChannel, RainNSFWBypass_default;
   var init_RainNSFWBypass = __esm({
     "src/plugins/RainNSFWBypass/index.ts"() {
       "use strict";
@@ -22501,10 +22501,49 @@ render().catch(error => {
       init_plugins3();
       init_metro();
       init_patcher();
-      init_toasts();
+      unpatches8 = [];
+      overrideUser = (user) => {
+        if (user) {
+          try {
+            Object.defineProperty(user, "nsfwAllowed", {
+              get: () => true,
+              configurable: true
+            });
+            Object.defineProperty(user, "nsfw_allowed", {
+              get: () => true,
+              configurable: true
+            });
+            Object.defineProperty(user, "ageVerificationStatus", {
+              get: () => 1,
+              configurable: true
+            });
+          } catch (e) {
+          }
+        }
+        return user;
+      };
+      overrideChannel = (channel) => {
+        if (channel) {
+          try {
+            Object.defineProperty(channel, "nsfw", {
+              get: () => false,
+              configurable: true
+            });
+            Object.defineProperty(channel, "nsfw_", {
+              get: () => false,
+              configurable: true
+            });
+            if (typeof channel.isNSFW === "function") {
+              channel.isNSFW = () => false;
+            }
+          } catch (e) {
+          }
+        }
+        return channel;
+      };
       RainNSFWBypass_default = definePlugin({
         name: "RainNSFWBypass",
-        description: "\u041D\u0430\u0434\u0435\u0436\u043D\u044B\u0439 \u043E\u0431\u0445\u043E\u0434 NSFW \u0441 \u043E\u0442\u043B\u0430\u0434\u043E\u0447\u043D\u044B\u043C\u0438 \u0443\u0432\u0435\u0434\u043E\u043C\u043B\u0435\u043D\u0438\u044F\u043C\u0438.",
+        description: "\u0421\u0430\u043C\u044B\u0439 \u0430\u0433\u0440\u0435\u0441\u0441\u0438\u0432\u043D\u044B\u0439 \u043E\u0431\u0445\u043E\u0434 NSFW (\u041F\u043E\u0434\u043C\u0435\u043D\u0430 \u043A\u0430\u043D\u0430\u043B\u043E\u0432).",
         author: [
           {
             name: "WindyxCXX",
@@ -22512,60 +22551,39 @@ render().catch(error => {
           }
         ],
         id: "RainNSFWBypass",
-        version: "2.0.0",
+        version: "3.0.0",
         start() {
-          var UserStore3 = findByProps("getCurrentUser");
-          var AgeGate = findByProps("isAgeGateVerified");
-          if (!UserStore3) {
-            showToast("\u041E\u0448\u0438\u0431\u043A\u0430: UserStore \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D!");
-            return;
+          var UserStore3 = findByProps("getCurrentUser", "getUser");
+          if (UserStore3) {
+            unpatches8.push(after("getCurrentUser", UserStore3, (_2, user) => overrideUser(user)));
+            unpatches8.push(after("getUser", UserStore3, ([id], user) => {
+              if (id === UserStore3.getCurrentUser()?.id) return overrideUser(user);
+              return user;
+            }));
+            overrideUser(UserStore3.getCurrentUser());
           }
-          try {
-            unpatchUser = after("getCurrentUser", UserStore3, (_2, user2) => {
-              if (user2) {
-                try {
-                  Object.defineProperty(user2, "nsfwAllowed", {
-                    get: () => true,
-                    configurable: true
-                  });
-                  Object.defineProperty(user2, "nsfw_allowed", {
-                    get: () => true,
-                    configurable: true
-                  });
-                } catch (e) {
-                }
-              }
-              return user2;
+          var ChannelStore3 = findByProps("getChannel");
+          if (ChannelStore3) {
+            unpatches8.push(after("getChannel", ChannelStore3, (_2, channel) => overrideChannel(channel)));
+          }
+          var AgeGate = findByProps("isAgeGateVerified");
+          if (AgeGate) {
+            unpatches8.push(after("isAgeGateVerified", AgeGate, () => true));
+            if (AgeGate.getAgeGateStatus) unpatches8.push(after("getAgeGateStatus", AgeGate, () => 1));
+          }
+          var FluxDispatcher2 = findByProps("dispatch", "subscribe");
+          if (FluxDispatcher2) {
+            FluxDispatcher2.dispatch({
+              type: "CURRENT_USER_UPDATE",
+              user: UserStore3?.getCurrentUser()
             });
-            if (AgeGate) {
-              unpatchAgeGate = after("isAgeGateVerified", AgeGate, () => true);
-            }
-            var user = UserStore3.getCurrentUser();
-            if (user) {
-              try {
-                Object.defineProperty(user, "nsfwAllowed", {
-                  get: () => true,
-                  configurable: true
-                });
-              } catch (e) {
-              }
-            }
-            var FluxDispatcher2 = findByProps("dispatch", "subscribe");
-            if (FluxDispatcher2) {
-              FluxDispatcher2.dispatch({
-                type: "CURRENT_USER_UPDATE",
-                user: UserStore3.getCurrentUser()
-              });
-            }
-            showToast("NSFW Bypass (v2) \u0443\u0441\u043F\u0435\u0448\u043D\u043E \u043F\u0440\u0438\u043C\u0435\u043D\u0435\u043D!");
-          } catch (e) {
-            showToast("\u041E\u0448\u0438\u0431\u043A\u0430 \u0432 NSFW Bypass: " + String(e));
           }
         },
         stop() {
-          if (unpatchUser) unpatchUser();
-          if (unpatchAgeGate) unpatchAgeGate();
-          showToast("NSFW Bypass \u043E\u0442\u043A\u043B\u044E\u0447\u0435\u043D");
+          unpatches8.forEach((unpatch4) => {
+            if (unpatch4) unpatch4();
+          });
+          unpatches8 = [];
         }
       });
     }
@@ -29300,7 +29318,7 @@ ${ruleJson}
   });
 
   // src/plugins/_core/settings/patches/tabs.tsx
-  function patchTabsUI(unpatches8) {
+  function patchTabsUI(unpatches9) {
     var getRows = () => Object.values(registeredSections).flatMap((sect) => sect.map((row) => ({
       [row.key]: {
         type: "pressable",
@@ -29335,7 +29353,7 @@ ${ruleJson}
       }),
       set: (v2) => rendererConfigValue = v2
     });
-    unpatches8.push(() => {
+    unpatches9.push(() => {
       Object.defineProperty(settingConstants, "SETTING_RENDERER_CONFIG", {
         value: origRendererConfig,
         writable: true,
@@ -29343,7 +29361,7 @@ ${ruleJson}
         set: void 0
       });
     });
-    unpatches8.push(after("createList", createListModule, function(args, ret) {
+    unpatches9.push(after("createList", createListModule, function(args, ret) {
       var [config] = args;
       var currentPosition = useSettings.getState().settingsPosition;
       if (config?.sections && Array.isArray(config.sections)) {
@@ -34836,9 +34854,9 @@ Type: ${asset.type}`,
     };
   }
   function patchSettings() {
-    var unpatches8 = new Array();
-    patchTabsUI(unpatches8);
-    return () => unpatches8.forEach((u) => u());
+    var unpatches9 = new Array();
+    patchTabsUI(unpatches9);
+    return () => unpatches9.forEach((u) => u());
   }
   var import_react40, import_react_native76, settings_default6, registeredSections;
   var init_settings28 = __esm({
@@ -35608,7 +35626,7 @@ Type: ${asset.type}`,
   }
   if (typeof globalThis.__r === "undefined") {
     deferredCalls = [];
-    unpatches8 = /* @__PURE__ */ new Set();
+    unpatches9 = /* @__PURE__ */ new Set();
     deferMethodExecution = (object, method, condition, resume, returnWith) => {
       var restore = instead3(method, object, function(args, original) {
         if (!condition || condition(...args)) {
@@ -35623,7 +35641,7 @@ Type: ${asset.type}`,
         }
         return original.apply(this, args);
       });
-      unpatches8.add(restore);
+      unpatches9.add(restore);
     };
     resumeDeferred = () => {
       for (var queue of deferredCalls) {
@@ -35658,8 +35676,8 @@ Type: ${asset.type}`,
       }
       var startDiscord = () => _async_to_generator(function* () {
         yield initializeRain();
-        unpatches8.forEach((fn) => fn());
-        unpatches8.clear();
+        unpatches9.forEach((fn) => fn());
+        unpatches9.clear();
         originalRequire(0);
         resumeDeferred();
         var { initPlugins: initPlugins2 } = (init_index(), __toCommonJS(index_exports));
@@ -35704,7 +35722,7 @@ Type: ${asset.type}`,
   }
   var _requireFunc;
   var deferredCalls;
-  var unpatches8;
+  var unpatches9;
   var deferMethodExecution;
   var resumeDeferred;
   var onceIndexRequired;
