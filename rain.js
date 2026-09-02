@@ -22492,7 +22492,7 @@ render().catch(error => {
   __export(RainNSFWBypass_exports, {
     default: () => RainNSFWBypass_default
   });
-  var bypassInterval, RainNSFWBypass_default;
+  var unpatchUser, unpatchAgeGate, RainNSFWBypass_default;
   var init_RainNSFWBypass = __esm({
     "src/plugins/RainNSFWBypass/index.ts"() {
       "use strict";
@@ -22500,9 +22500,11 @@ render().catch(error => {
       init_promiseAllSettled();
       init_plugins3();
       init_metro();
+      init_patcher();
+      init_toasts();
       RainNSFWBypass_default = definePlugin({
         name: "RainNSFWBypass",
-        description: "Age Confirmation Bypass Plugin For Rain (Runtime Mode)",
+        description: "\u041D\u0430\u0434\u0435\u0436\u043D\u044B\u0439 \u043E\u0431\u0445\u043E\u0434 NSFW \u0441 \u043E\u0442\u043B\u0430\u0434\u043E\u0447\u043D\u044B\u043C\u0438 \u0443\u0432\u0435\u0434\u043E\u043C\u043B\u0435\u043D\u0438\u044F\u043C\u0438.",
         author: [
           {
             name: "WindyxCXX",
@@ -22510,23 +22512,60 @@ render().catch(error => {
           }
         ],
         id: "RainNSFWBypass",
-        version: "1.0.4",
+        version: "2.0.0",
         start() {
-          bypassInterval = setInterval(() => {
-            var UserStore3 = findByProps("getCurrentUser");
-            if (UserStore3) {
-              var user = UserStore3.getCurrentUser();
-              if (user) {
-                user.nsfwAllowed = true;
-                user.nsfw_allowed = true;
-                user.ageVerificationStatus = 1;
-                clearInterval(bypassInterval);
+          var UserStore3 = findByProps("getCurrentUser");
+          var AgeGate = findByProps("isAgeGateVerified");
+          if (!UserStore3) {
+            showToast("\u041E\u0448\u0438\u0431\u043A\u0430: UserStore \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D!");
+            return;
+          }
+          try {
+            unpatchUser = after("getCurrentUser", UserStore3, (_2, user2) => {
+              if (user2) {
+                try {
+                  Object.defineProperty(user2, "nsfwAllowed", {
+                    get: () => true,
+                    configurable: true
+                  });
+                  Object.defineProperty(user2, "nsfw_allowed", {
+                    get: () => true,
+                    configurable: true
+                  });
+                } catch (e) {
+                }
+              }
+              return user2;
+            });
+            if (AgeGate) {
+              unpatchAgeGate = after("isAgeGateVerified", AgeGate, () => true);
+            }
+            var user = UserStore3.getCurrentUser();
+            if (user) {
+              try {
+                Object.defineProperty(user, "nsfwAllowed", {
+                  get: () => true,
+                  configurable: true
+                });
+              } catch (e) {
               }
             }
-          }, 1e3);
+            var FluxDispatcher2 = findByProps("dispatch", "subscribe");
+            if (FluxDispatcher2) {
+              FluxDispatcher2.dispatch({
+                type: "CURRENT_USER_UPDATE",
+                user: UserStore3.getCurrentUser()
+              });
+            }
+            showToast("NSFW Bypass (v2) \u0443\u0441\u043F\u0435\u0448\u043D\u043E \u043F\u0440\u0438\u043C\u0435\u043D\u0435\u043D!");
+          } catch (e) {
+            showToast("\u041E\u0448\u0438\u0431\u043A\u0430 \u0432 NSFW Bypass: " + String(e));
+          }
         },
         stop() {
-          if (bypassInterval) clearInterval(bypassInterval);
+          if (unpatchUser) unpatchUser();
+          if (unpatchAgeGate) unpatchAgeGate();
+          showToast("NSFW Bypass \u043E\u0442\u043A\u043B\u044E\u0447\u0435\u043D");
         }
       });
     }
