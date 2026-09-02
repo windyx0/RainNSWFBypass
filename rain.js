@@ -8603,7 +8603,7 @@ ${pendingInsertLink}` : pendingInsertLink;
               label: "\u041A\u043E\u0434 \u043F\u043B\u0430\u0433\u0438\u043D\u0430 \u0438\u043B\u0438 URL (RAW)",
               placeholder: "https://raw.githubusercontent.com/... \u0438\u043B\u0438 \u043A\u043E\u0434",
               value: input,
-              onChangeText: setInput,
+              onChange: setInput,
               multiline: true
             }),
             /* @__PURE__ */ jsx(Button, {
