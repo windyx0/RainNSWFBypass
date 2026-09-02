@@ -22514,7 +22514,11 @@ render().catch(error => {
               configurable: true
             });
             Object.defineProperty(user, "ageVerificationStatus", {
-              get: () => 1,
+              get: () => 3,
+              configurable: true
+            });
+            Object.defineProperty(user, "explicitContentFilter", {
+              get: () => 0,
               configurable: true
             });
           } catch (e) {
@@ -22543,7 +22547,7 @@ render().catch(error => {
       };
       RainNSFWBypass_default = definePlugin({
         name: "RainNSFWBypass",
-        description: "\u0421\u0430\u043C\u044B\u0439 \u0430\u0433\u0440\u0435\u0441\u0441\u0438\u0432\u043D\u044B\u0439 \u043E\u0431\u0445\u043E\u0434 NSFW (\u041F\u043E\u0434\u043C\u0435\u043D\u0430 \u043A\u0430\u043D\u0430\u043B\u043E\u0432).",
+        description: "\u041F\u043E\u043B\u043D\u044B\u0439 \u043E\u0431\u0445\u043E\u0434 NSFW: \u0440\u0430\u0437\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0430 \u043A\u0430\u043D\u0430\u043B\u043E\u0432 \u0438 \u0444\u043E\u0442\u043E (Yoti Bypass).",
         author: [
           {
             name: "WindyxCXX",
@@ -22551,7 +22555,7 @@ render().catch(error => {
           }
         ],
         id: "RainNSFWBypass",
-        version: "3.0.0",
+        version: "4.0.0",
         start() {
           var UserStore3 = findByProps("getCurrentUser", "getUser");
           if (UserStore3) {
@@ -22569,7 +22573,7 @@ render().catch(error => {
           var AgeGate = findByProps("isAgeGateVerified");
           if (AgeGate) {
             unpatches8.push(after("isAgeGateVerified", AgeGate, () => true));
-            if (AgeGate.getAgeGateStatus) unpatches8.push(after("getAgeGateStatus", AgeGate, () => 1));
+            if (AgeGate.getAgeGateStatus) unpatches8.push(after("getAgeGateStatus", AgeGate, () => 3));
           }
           var FluxDispatcher2 = findByProps("dispatch", "subscribe");
           if (FluxDispatcher2) {
