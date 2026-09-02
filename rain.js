@@ -22547,7 +22547,7 @@ render().catch(error => {
       };
       RainNSFWBypass_default = definePlugin({
         name: "RainNSFWBypass",
-        description: "\u041F\u043E\u043B\u043D\u044B\u0439 \u043E\u0431\u0445\u043E\u0434 NSFW (Fix \u043A\u0435\u0448\u0430 \u043F\u0440\u0438 \u0441\u0442\u0430\u0440\u0442\u0435 v2).",
+        description: "\u041F\u043E\u043B\u043D\u044B\u0439 \u043E\u0431\u0445\u043E\u0434 NSFW (Hard Fix \u043A\u0435\u0448\u0430).",
         author: [
           {
             name: "WindyxCXX",
@@ -22555,7 +22555,7 @@ render().catch(error => {
           }
         ],
         id: "RainNSFWBypass",
-        version: "4.2.0",
+        version: "4.3.0",
         start() {
           var UserStore3 = findByProps("getCurrentUser", "getUser");
           if (UserStore3) {
@@ -22582,30 +22582,32 @@ render().catch(error => {
               user: UserStore3?.getCurrentUser()
             });
             var SelectedChannelStore2 = findByProps("getChannelId", "getVoiceChannelId");
-            var forceFixCache = () => {
-              if (SelectedChannelStore2 && ChannelStore3) {
+            var GuildStore2 = findByProps("getGuildId");
+            var hardFixCache = () => {
+              if (SelectedChannelStore2 && ChannelStore3 && GuildStore2) {
                 var currentChannelId = SelectedChannelStore2.getChannelId();
+                var currentGuildId = GuildStore2.getGuildId();
                 if (currentChannelId) {
-                  var currentChannel = ChannelStore3.getChannel(currentChannelId);
-                  if (currentChannel) {
-                    overrideChannel(currentChannel);
-                    try {
+                  try {
+                    FluxDispatcher2.dispatch({
+                      type: "CHANNEL_SELECT",
+                      guildId: currentGuildId,
+                      channelId: null
+                    });
+                    setTimeout(() => {
                       FluxDispatcher2.dispatch({
-                        type: "CHANNEL_UPDATES",
-                        channels: [
-                          currentChannel
-                        ]
+                        type: "CHANNEL_SELECT",
+                        guildId: currentGuildId,
+                        channelId: currentChannelId
                       });
-                    } catch (e) {
-                    }
+                    }, 50);
+                  } catch (e) {
                   }
                 }
               }
             };
-            forceFixCache();
-            setTimeout(forceFixCache, 300);
-            setTimeout(forceFixCache, 800);
-            setTimeout(forceFixCache, 2e3);
+            setTimeout(hardFixCache, 500);
+            setTimeout(hardFixCache, 1500);
           }
         },
         stop() {
