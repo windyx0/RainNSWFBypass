@@ -1,22 +1,25 @@
-import definePlugin from "@utils/types";
-import { findByProps } from "@webpack";
+import { definePlugin } from "@plugins";
+import * as metro from "@metro";
 
 let bypassInterval: any;
 
 export default definePlugin({
-    name: "NSFWBypassRuntime",
-    description: "Снимает возрастные ограничения через подмену статуса в памяти",
-    authors: [{ name: "ТвойНик", id: "00000000000000000" }],
+    name: "RainNSFWBypass",
+    description: "Age Confirmation Bypass Plugin For Rain (Runtime Mode)",
+    author: [{ name: "WindyxCXX", id: 0n }],
+    id: "RainNSFWBypass",
+    version: "1.0.4",
     start() {
         // Таймер ждет, пока Discord прогрузит данные аккаунта
         bypassInterval = setInterval(() => {
-            const userStore = findByProps("getCurrentUser");
-            if (userStore) {
-                const user = userStore.getCurrentUser();
+            const UserStore = metro.findByProps("getCurrentUser");
+            if (UserStore) {
+                const user = UserStore.getCurrentUser();
                 if (user) {
                     // Принудительно ставим статус 18+ (1) и разрешаем NSFW
-                    (user as any).nsfwAllowed = true;
-                    (user as any).ageVerificationStatus = 1; 
+                    user.nsfwAllowed = true;
+                    user.nsfw_allowed = true;
+                    user.ageVerificationStatus = 1;
                     
                     // Останавливаем таймер — патч применен
                     clearInterval(bypassInterval);
