@@ -26569,6 +26569,19 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
         version: "1.1.1",
         start() {
           try {
+            var hookComponent2 = function(Comp, moduleName, moduleParent) {
+              if (!Comp) return;
+              try {
+                if (Comp.render) unpatches8.push(after("render", Comp, patchFn2));
+                if (Comp.type && Comp.type.render) unpatches8.push(after("render", Comp.type, patchFn2));
+                if (Comp.prototype && Comp.prototype.render) unpatches8.push(after("render", Comp.prototype, patchFn2));
+                if (moduleName && moduleParent && typeof moduleParent[moduleName] === "function") {
+                  unpatches8.push(after(moduleName, moduleParent, patchFn2));
+                }
+              } catch (e) {
+              }
+            };
+            var hookComponent = hookComponent2;
             logger.info("[ShowHiddenChannels] Plugin started!");
             var PermissionStore = findByProps("getChannelPermissions", "can");
             var Permissions = findByProps("Permissions", "ActivityTypes")?.Permissions || findByProps("VIEW_CHANNEL") || {
@@ -26608,76 +26621,35 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
               }
             }
             var ChannelStore2 = findByProps("getChannel", "hasChannel");
+            var patchFn2 = (args, res) => {
+              var props = args[0] || {};
+              var channelId = props.channelId || props.channel?.id;
+              if (!channelId) {
+                channelId = props.route?.params?.channelId || res?.props?.channelId || res?.props?.channel?.id;
+              }
+              if (channelId && ChannelStore2) {
+                var channel = ChannelStore2.getChannel(channelId);
+                if (channel && hiddenChannelIds.has(channelId)) {
+                  return React2.createElement(HiddenChannelUI, {
+                    channel
+                  });
+                }
+              }
+              return res;
+            };
             var chatModule = findByProps("Chat");
             if (chatModule) {
-              var patchFn2 = (args, res) => {
-                var props = args[0] || {};
-                var channelId = props.channelId || props.channel?.id;
-                if (!channelId) {
-                  channelId = props.route?.params?.channelId || res?.props?.channelId || res?.props?.channel?.id;
-                }
-                if (channelId && ChannelStore2) {
-                  var channel = ChannelStore2.getChannel(channelId);
-                  if (channel && hiddenChannelIds.has(channelId)) {
-                    return React2.createElement(HiddenChannelUI, {
-                      channel
-                    });
-                  }
-                }
-                return res;
-              };
-              if (typeof chatModule.Chat === "function" || typeof chatModule.Chat === "object") {
-                try {
-                  unpatches8.push(after("Chat", chatModule, patchFn2));
-                } catch (e) {
-                }
-              }
-              if (typeof chatModule.default === "function" || typeof chatModule.default === "object") {
-                try {
-                  unpatches8.push(after("default", chatModule, patchFn2));
-                } catch (e) {
-                }
-              }
-              if (typeof chatModule.ChannelChat === "function" || typeof chatModule.ChannelChat === "object") {
-                try {
-                  unpatches8.push(after("ChannelChat", chatModule, patchFn2));
-                } catch (e) {
-                }
-              }
+              hookComponent2(chatModule.Chat, "Chat", chatModule);
+              hookComponent2(chatModule.default, "default", chatModule);
+              hookComponent2(chatModule.ChannelChat, "ChannelChat", chatModule);
             }
+            hookComponent2(findByName("Chat", false), null, null);
+            hookComponent2(findByName("ChannelChat", false), null, null);
             var messagesModule = findByProps("MessagesWrapper") || findByProps("ChannelMessages");
             if (messagesModule) {
-              var patchFn1 = (args, res) => {
-                var props = args[0] || {};
-                var channelId = props.channelId || props.channel?.id;
-                if (channelId && ChannelStore2) {
-                  var channel = ChannelStore2.getChannel(channelId);
-                  if (channel && hiddenChannelIds.has(channelId)) {
-                    return React2.createElement(HiddenChannelUI, {
-                      channel
-                    });
-                  }
-                }
-                return res;
-              };
-              if (messagesModule.MessagesWrapper) {
-                try {
-                  unpatches8.push(after("MessagesWrapper", messagesModule, patchFn1));
-                } catch (e) {
-                }
-              }
-              if (messagesModule.default) {
-                try {
-                  unpatches8.push(after("default", messagesModule, patchFn1));
-                } catch (e) {
-                }
-              }
-              if (messagesModule.ChannelMessages) {
-                try {
-                  unpatches8.push(after("ChannelMessages", messagesModule, patchFn1));
-                } catch (e) {
-                }
-              }
+              hookComponent2(messagesModule.MessagesWrapper, "MessagesWrapper", messagesModule);
+              hookComponent2(messagesModule.default, "default", messagesModule);
+              hookComponent2(messagesModule.ChannelMessages, "ChannelMessages", messagesModule);
             }
           } catch (e) {
             import_react_native49.Alert.alert("ShowHiddenChannels Error", String(e.message || e));
