@@ -26538,7 +26538,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
       }, r.name))))) : null
     );
   }
-  var import_react_native49, unpatches8, RNText, RNView, RNScrollView, RNImage, ShowHiddenChannels_default;
+  var import_react_native49, unpatches8, hiddenChannelIds, RNText, RNView, RNScrollView, RNImage, ShowHiddenChannels_default;
   var init_ShowHiddenChannels = __esm({
     "src/plugins/ShowHiddenChannels/index.ts"() {
       "use strict";
@@ -26551,6 +26551,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
       init_logger();
       import_react_native49 = __toESM(require_react_native());
       unpatches8 = [];
+      hiddenChannelIds = /* @__PURE__ */ new Set();
       RNText = import_react_native49.Text || findByProps("Text")?.Text;
       RNView = import_react_native49.View || findByProps("View")?.View;
       RNScrollView = import_react_native49.ScrollView || findByProps("ScrollView")?.ScrollView;
@@ -26585,13 +26586,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
                 if (permission === VIEW_CHANNEL && context && context.guild_id) {
                   var hasAccess = orig.apply(PermissionStore, args);
                   if (!hasAccess) {
-                    try {
-                      if (!context.isHiddenChannel) Object.defineProperty(context, "isHiddenChannel", {
-                        get: () => true,
-                        configurable: true
-                      });
-                    } catch (e) {
-                    }
+                    if (context.id) hiddenChannelIds.add(context.id);
                     return true;
                   }
                 }
@@ -26604,13 +26599,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
                   if (permission === VIEW_CHANNEL && context && context.guild_id) {
                     var hasAccess = orig.apply(PermissionStore, args);
                     if (!hasAccess) {
-                      try {
-                        if (!context.isHiddenChannel) Object.defineProperty(context, "isHiddenChannel", {
-                          get: () => true,
-                          configurable: true
-                        });
-                      } catch (e) {
-                      }
+                      if (context.id) hiddenChannelIds.add(context.id);
                       return true;
                     }
                   }
@@ -26629,7 +26618,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
                 }
                 if (channelId && ChannelStore2) {
                   var channel = ChannelStore2.getChannel(channelId);
-                  if (channel && channel.isHiddenChannel) {
+                  if (channel && hiddenChannelIds.has(channelId)) {
                     return React2.createElement(HiddenChannelUI, {
                       channel
                     });
@@ -26663,7 +26652,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
                 var channelId = props.channelId || props.channel?.id;
                 if (channelId && ChannelStore2) {
                   var channel = ChannelStore2.getChannel(channelId);
-                  if (channel && channel.isHiddenChannel) {
+                  if (channel && hiddenChannelIds.has(channelId)) {
                     return React2.createElement(HiddenChannelUI, {
                       channel
                     });
@@ -26700,6 +26689,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
             if (unpatch6) unpatch6();
           });
           unpatches8 = [];
+          hiddenChannelIds.clear();
         }
       });
     }
