@@ -26373,7 +26373,16 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
     default: () => ShowHiddenChannels_default
   });
   function HiddenChannelUI({ channel }) {
-    if (!RNView || !RNText || !RNScrollView || !RNImage) return null;
+    console.log("[ShowHiddenChannels] Rendering HiddenChannelUI for channel:", channel?.id);
+    if (!RNView || !RNText || !RNScrollView || !RNImage) {
+      console.log("[ShowHiddenChannels] ERROR: Missing RN components!", {
+        RNView: !!RNView,
+        RNText: !!RNText,
+        RNScrollView: !!RNScrollView,
+        RNImage: !!RNImage
+      });
+      return null;
+    }
     var GuildStore2 = findByProps("getGuild");
     var UserStore2 = findByProps("getUser", "getCurrentUser");
     var Permissions = findByProps("Permissions", "ActivityTypes")?.Permissions || {
@@ -26555,13 +26564,18 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
           }
         ],
         id: "ShowHiddenChannels",
-        version: "1.1.0",
+        version: "1.1.1",
         start() {
+          console.log("[ShowHiddenChannels] Plugin started!");
           var PermissionStore = findByProps("getChannelPermissions", "can");
           var Permissions = findByProps("Permissions", "ActivityTypes")?.Permissions || findByProps("VIEW_CHANNEL") || {
             VIEW_CHANNEL: 1024n
           };
           var VIEW_CHANNEL = Permissions.VIEW_CHANNEL;
+          console.log("[ShowHiddenChannels] Stores found:", {
+            PermissionStore: !!PermissionStore,
+            VIEW_CHANNEL: !!VIEW_CHANNEL
+          });
           if (PermissionStore && VIEW_CHANNEL) {
             unpatches8.push(instead("can", PermissionStore, (args, orig) => {
               var permission = args[0];
@@ -26607,22 +26621,28 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
             findByName("ChannelChat", false),
             findByProps("Chat", "ChannelChat")
           ];
-          ChatComponents.forEach((ChatComponent) => {
+          console.log("[ShowHiddenChannels] ChatComponents found:", ChatComponents.map((c2) => !!c2));
+          ChatComponents.forEach((ChatComponent, index) => {
             if (!ChatComponent) return;
             try {
               var patchFn2 = (args, res) => {
                 var channel = args[0]?.channel || res?.props?.channel || res?.props?.children?.props?.channel;
-                if (channel && channel.isHiddenChannel) {
-                  return React2.createElement(HiddenChannelUI, {
-                    channel
-                  });
+                if (channel) {
+                  if (channel.isHiddenChannel) {
+                    console.log("[ShowHiddenChannels] patchFn: Channel IS hidden. Rendering UI for:", channel.id);
+                    return React2.createElement(HiddenChannelUI, {
+                      channel
+                    });
+                  }
                 }
                 return res;
               };
               if (ChatComponent.prototype && ChatComponent.prototype.render) {
+                console.log("[ShowHiddenChannels] Patching prototype.render on component", index);
                 unpatches8.push(after("render", ChatComponent.prototype, function(args, res) {
                   var channel = this?.props?.channel || args[0]?.channel;
                   if (channel && channel.isHiddenChannel) {
+                    console.log("[ShowHiddenChannels] prototype.render: Channel IS hidden. Rendering UI for:", channel.id);
                     return React2.createElement(HiddenChannelUI, {
                       channel
                     });
@@ -26631,15 +26651,18 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
                 }));
               }
               if (ChatComponent.type) {
+                console.log("[ShowHiddenChannels] Patching type on component", index);
                 unpatches8.push(after("type", ChatComponent, patchFn2));
               }
               if (typeof ChatComponent === "function" || ChatComponent.default) {
+                console.log("[ShowHiddenChannels] Patching default/function on component", index);
                 unpatches8.push(after("default", ChatComponent, patchFn2));
                 if (typeof ChatComponent === "function") {
                   unpatches8.push(after(ChatComponent.name || "Chat", ChatComponent, patchFn2));
                 }
               }
             } catch (e) {
+              console.log("[ShowHiddenChannels] Error patching component", index, e);
             }
           });
         },
