@@ -26567,37 +26567,19 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
         id: "ShowHiddenChannels",
         version: "1.1.1",
         start() {
-          logger.info("[ShowHiddenChannels] Plugin started!");
-          var PermissionStore = findByProps("getChannelPermissions", "can");
-          var Permissions = findByProps("Permissions", "ActivityTypes")?.Permissions || findByProps("VIEW_CHANNEL") || {
-            VIEW_CHANNEL: 1024n
-          };
-          var VIEW_CHANNEL = Permissions.VIEW_CHANNEL;
-          logger.info("[ShowHiddenChannels] Stores found:", {
-            PermissionStore: !!PermissionStore,
-            VIEW_CHANNEL: !!VIEW_CHANNEL
-          });
-          if (PermissionStore && VIEW_CHANNEL) {
-            unpatches8.push(instead("can", PermissionStore, (args, orig) => {
-              var permission = args[0];
-              var context = args.length === 3 ? args[2] : args[1];
-              if (permission === VIEW_CHANNEL && context && context.guild_id) {
-                var hasAccess = orig.apply(PermissionStore, args);
-                if (!hasAccess) {
-                  try {
-                    if (!context.isHiddenChannel) Object.defineProperty(context, "isHiddenChannel", {
-                      get: () => true,
-                      configurable: true
-                    });
-                  } catch (e) {
-                  }
-                  return true;
-                }
-              }
-              return orig.apply(PermissionStore, args);
-            }));
-            if (PermissionStore.canWithPartialContext) {
-              unpatches8.push(instead("canWithPartialContext", PermissionStore, (args, orig) => {
+          try {
+            logger.info("[ShowHiddenChannels] Plugin started!");
+            var PermissionStore = findByProps("getChannelPermissions", "can");
+            var Permissions = findByProps("Permissions", "ActivityTypes")?.Permissions || findByProps("VIEW_CHANNEL") || {
+              VIEW_CHANNEL: 1024n
+            };
+            var VIEW_CHANNEL = Permissions.VIEW_CHANNEL;
+            logger.info("[ShowHiddenChannels] Stores found:", {
+              PermissionStore: !!PermissionStore,
+              VIEW_CHANNEL: !!VIEW_CHANNEL
+            });
+            if (PermissionStore && VIEW_CHANNEL) {
+              unpatches8.push(instead("can", PermissionStore, (args, orig) => {
                 var permission = args[0];
                 var context = args.length === 3 ? args[2] : args[1];
                 if (permission === VIEW_CHANNEL && context && context.guild_id) {
@@ -26615,57 +26597,80 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
                 }
                 return orig.apply(PermissionStore, args);
               }));
-            }
-          }
-          var ChatComponents = [
-            findByName("Chat", false),
-            findByName("ChannelChat", false),
-            findByProps("Chat", "ChannelChat")
-          ];
-          logger.info("[ShowHiddenChannels] ChatComponents found:", ChatComponents.map((c2) => !!c2));
-          ChatComponents.forEach((ChatComponent, index) => {
-            if (!ChatComponent) return;
-            try {
-              var patchFn2 = (args, res) => {
-                var channel = args[0]?.channel || res?.props?.channel || res?.props?.children?.props?.channel;
-                if (channel) {
-                  if (channel.isHiddenChannel) {
-                    logger.info("[ShowHiddenChannels] patchFn: Channel IS hidden. Rendering UI for:", channel.id);
-                    return React2.createElement(HiddenChannelUI, {
-                      channel
-                    });
+              if (PermissionStore.canWithPartialContext) {
+                unpatches8.push(instead("canWithPartialContext", PermissionStore, (args, orig) => {
+                  var permission = args[0];
+                  var context = args.length === 3 ? args[2] : args[1];
+                  if (permission === VIEW_CHANNEL && context && context.guild_id) {
+                    var hasAccess = orig.apply(PermissionStore, args);
+                    if (!hasAccess) {
+                      try {
+                        if (!context.isHiddenChannel) Object.defineProperty(context, "isHiddenChannel", {
+                          get: () => true,
+                          configurable: true
+                        });
+                      } catch (e) {
+                      }
+                      return true;
+                    }
                   }
-                }
-                return res;
-              };
-              if (ChatComponent.prototype && ChatComponent.prototype.render) {
-                logger.info("[ShowHiddenChannels] Patching prototype.render on component", index);
-                unpatches8.push(after("render", ChatComponent.prototype, function(args, res) {
-                  var channel = this?.props?.channel || args[0]?.channel;
-                  if (channel && channel.isHiddenChannel) {
-                    console.log("[ShowHiddenChannels] prototype.render: Channel IS hidden. Rendering UI for:", channel.id);
-                    return React2.createElement(HiddenChannelUI, {
-                      channel
-                    });
-                  }
-                  return res;
+                  return orig.apply(PermissionStore, args);
                 }));
               }
-              if (ChatComponent.type) {
-                console.log("[ShowHiddenChannels] Patching type on component", index);
-                unpatches8.push(after("type", ChatComponent, patchFn2));
-              }
-              if (typeof ChatComponent === "function" || ChatComponent.default) {
-                console.log("[ShowHiddenChannels] Patching default/function on component", index);
-                unpatches8.push(after("default", ChatComponent, patchFn2));
-                if (typeof ChatComponent === "function") {
-                  unpatches8.push(after(ChatComponent.name || "Chat", ChatComponent, patchFn2));
-                }
-              }
-            } catch (e) {
-              console.log("[ShowHiddenChannels] Error patching component", index, e);
             }
-          });
+            var ChatComponents = [
+              findByName("Chat", false),
+              findByName("ChannelChat", false),
+              findByProps("Chat", "ChannelChat")
+            ];
+            logger.info("[ShowHiddenChannels] ChatComponents found:", ChatComponents.map((c2) => !!c2));
+            ChatComponents.forEach((ChatComponent, index) => {
+              if (!ChatComponent) return;
+              try {
+                var patchFn2 = (args, res) => {
+                  var channel = args[0]?.channel || res?.props?.channel || res?.props?.children?.props?.channel;
+                  if (channel) {
+                    if (channel.isHiddenChannel) {
+                      logger.info("[ShowHiddenChannels] patchFn: Channel IS hidden. Rendering UI for:", channel.id);
+                      return React2.createElement(HiddenChannelUI, {
+                        channel
+                      });
+                    }
+                  }
+                  return res;
+                };
+                if (ChatComponent.prototype && ChatComponent.prototype.render) {
+                  logger.info("[ShowHiddenChannels] Patching prototype.render on component", index);
+                  unpatches8.push(after("render", ChatComponent.prototype, function(args, res) {
+                    var channel = this?.props?.channel || args[0]?.channel;
+                    if (channel && channel.isHiddenChannel) {
+                      logger.info("[ShowHiddenChannels] prototype.render: Channel IS hidden. Rendering UI for:", channel.id);
+                      return React2.createElement(HiddenChannelUI, {
+                        channel
+                      });
+                    }
+                    return res;
+                  }));
+                }
+                if (ChatComponent.type) {
+                  logger.info("[ShowHiddenChannels] Patching type on component", index);
+                  unpatches8.push(after("type", ChatComponent, patchFn2));
+                }
+                if (typeof ChatComponent === "function" || ChatComponent.default) {
+                  logger.info("[ShowHiddenChannels] Patching default/function on component", index);
+                  unpatches8.push(after("default", ChatComponent, patchFn2));
+                  if (typeof ChatComponent === "function") {
+                    unpatches8.push(after(ChatComponent.name || "Chat", ChatComponent, patchFn2));
+                  }
+                }
+              } catch (e) {
+                logger.info("[ShowHiddenChannels] Error patching component", index, e);
+              }
+            });
+          } catch (e) {
+            import_react_native49.Alert.alert("ShowHiddenChannels Error", String(e.message || e));
+            logger.error("[ShowHiddenChannels] Fatal error in start:", e);
+          }
         },
         stop() {
           unpatches8.forEach((unpatch6) => {
