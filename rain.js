@@ -24777,7 +24777,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
     var { useSafeAreaInsets: useSafeAreaInsets3 } = findByProps("useSafeAreaInsets");
     var { useNavigatorBackPressHandler } = findByProps("useNavigatorBackPressHandler");
     var { Gesture, GestureDetector } = findByProps("Gesture", "GestureDetector");
-    var { Image: Image19, Pressable: Pressable9, ScrollView: ScrollView48, Text: Text10, View: View55, TextInput: TextInput6 } = Native;
+    var { Image: Image20, Pressable: Pressable9, ScrollView: ScrollView49, Text: Text10, View: View55, TextInput: TextInput6 } = Native;
     function DragTarget(properties) {
       var callbacks2 = (0, import_react25.useRef)(properties);
       callbacks2.current = properties;
@@ -24838,7 +24838,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
               item: guild,
               size: Math.floor(size * 0.34)
             })
-          }, guild.id)) : uri ? /* @__PURE__ */ jsx(Image19, {
+          }, guild.id)) : uri ? /* @__PURE__ */ jsx(Image20, {
             accessibilityIgnoresInvertColors: true,
             resizeMode: "cover",
             source: {
@@ -25360,7 +25360,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
             }
           ],
           children: [
-            /* @__PURE__ */ jsx(ScrollView48, {
+            /* @__PURE__ */ jsx(ScrollView49, {
               horizontal: true,
               pagingEnabled: true,
               ref: folderPager,
@@ -26372,7 +26372,165 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
   __export(ShowHiddenChannels_exports, {
     default: () => ShowHiddenChannels_default
   });
-  var import_react_native49, unpatches8, RNText, RNView, ShowHiddenChannels_default;
+  function HiddenChannelUI({ channel }) {
+    if (!RNView || !RNText) return null;
+    var GuildStore2 = findByProps("getGuild");
+    var UserStore2 = findByProps("getUser", "getCurrentUser");
+    var Permissions = findByProps("Permissions", "ActivityTypes")?.Permissions || {
+      VIEW_CHANNEL: 1024n
+    };
+    var VIEW_CHANNEL = Permissions.VIEW_CHANNEL;
+    var guild = GuildStore2?.getGuild(channel.guild_id);
+    var overwrites = channel.permissionOverwrites_ || channel.permissionOverwrites || {};
+    var allowedRoles = [];
+    var allowedUsers = [];
+    Object.values(overwrites).forEach((overwrite) => {
+      var allowBit = BigInt(overwrite.allow || 0);
+      var hasView = (allowBit & BigInt(VIEW_CHANNEL)) === BigInt(VIEW_CHANNEL);
+      if (hasView) {
+        if (overwrite.type === 0 && guild?.roles) {
+          var role = guild.roles[overwrite.id];
+          if (role && role.name !== "@everyone") allowedRoles.push(role);
+        } else if (overwrite.type === 1 && UserStore2) {
+          var user = UserStore2.getUser(overwrite.id);
+          if (user) allowedUsers.push(user);
+        }
+      }
+    });
+    return React2.createElement(
+      RNScrollView,
+      {
+        style: {
+          flex: 1,
+          backgroundColor: "#313338"
+        },
+        contentContainerStyle: {
+          alignItems: "center",
+          paddingVertical: 50,
+          paddingHorizontal: 20
+        }
+      },
+      React2.createElement(
+        RNView,
+        {
+          style: {
+            alignItems: "center",
+            marginBottom: 30
+          }
+        },
+        // Заглушка вместо картинки (замочек)
+        React2.createElement(RNText, {
+          style: {
+            fontSize: 80,
+            marginBottom: 20
+          }
+        }, "\u{1F512}"),
+        React2.createElement(RNText, {
+          style: {
+            color: "white",
+            fontSize: 24,
+            fontWeight: "bold",
+            marginBottom: 10,
+            textAlign: "center"
+          }
+        }, "This is a hidden text channel \u26A0\uFE0F"),
+        React2.createElement(RNText, {
+          style: {
+            color: "#b5bac1",
+            fontSize: 16,
+            textAlign: "center",
+            marginBottom: 5
+          }
+        }, "You can not see the messages of this channel."),
+        channel.lastMessageId ? React2.createElement(RNText, {
+          style: {
+            color: "#b5bac1",
+            fontSize: 14,
+            textAlign: "center"
+          }
+        }, `Last message ID: ${channel.lastMessageId}`) : null
+      ),
+      // Секция Allowed users and roles
+      allowedRoles.length > 0 || allowedUsers.length > 0 ? React2.createElement(RNView, {
+        style: {
+          backgroundColor: "#2b2d31",
+          borderRadius: 8,
+          padding: 16,
+          width: "100%",
+          maxWidth: 400
+        }
+      }, React2.createElement(RNText, {
+        style: {
+          color: "#b5bac1",
+          fontSize: 12,
+          fontWeight: "bold",
+          textTransform: "uppercase",
+          marginBottom: 12
+        }
+      }, `Allowed users and roles (${allowedRoles.length + allowedUsers.length})`), React2.createElement(RNView, {
+        style: {
+          flexDirection: "row",
+          flexWrap: "wrap",
+          gap: 8
+        }
+      }, allowedUsers.map((u) => React2.createElement(RNView, {
+        key: u.id,
+        style: {
+          flexDirection: "row",
+          alignItems: "center",
+          backgroundColor: "#1e1f22",
+          borderRadius: 4,
+          padding: 4,
+          paddingRight: 8,
+          marginRight: 8,
+          marginBottom: 8
+        }
+      }, React2.createElement(RNImage, {
+        source: {
+          uri: u.avatar ? `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.png?size=32` : `https://cdn.discordapp.com/embed/avatars/${parseInt(u.discriminator) % 5}.png`
+        },
+        style: {
+          width: 24,
+          height: 24,
+          borderRadius: 12,
+          marginRight: 6
+        }
+      }), React2.createElement(RNText, {
+        style: {
+          color: "#dbdee1",
+          fontSize: 14
+        }
+      }, u.globalName || u.username))), allowedRoles.map((r) => React2.createElement(RNView, {
+        key: r.id,
+        style: {
+          flexDirection: "row",
+          alignItems: "center",
+          backgroundColor: "#1e1f22",
+          borderRadius: 4,
+          padding: 4,
+          paddingHorizontal: 8,
+          marginRight: 8,
+          marginBottom: 8,
+          borderColor: r.colorString || "#4e5058",
+          borderWidth: 1
+        }
+      }, React2.createElement(RNView, {
+        style: {
+          width: 12,
+          height: 12,
+          borderRadius: 6,
+          backgroundColor: r.colorString || "#99aab5",
+          marginRight: 6
+        }
+      }), React2.createElement(RNText, {
+        style: {
+          color: "#dbdee1",
+          fontSize: 14
+        }
+      }, r.name))))) : null
+    );
+  }
+  var import_react_native49, unpatches8, RNText, RNView, RNScrollView, RNImage, ShowHiddenChannels_default;
   var init_ShowHiddenChannels = __esm({
     "src/plugins/ShowHiddenChannels/index.ts"() {
       "use strict";
@@ -26386,6 +26544,8 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
       unpatches8 = [];
       RNText = import_react_native49.Text || findByProps("Text")?.Text;
       RNView = import_react_native49.View || findByProps("View")?.View;
+      RNScrollView = import_react_native49.ScrollView || findByProps("ScrollView")?.ScrollView;
+      RNImage = import_react_native49.Image || findByProps("Image")?.Image;
       ShowHiddenChannels_default = definePlugin({
         name: "ShowHiddenChannels",
         description: "\u041F\u043E\u043A\u0430\u0437\u044B\u0432\u0430\u0435\u0442 \u0441\u043A\u0440\u044B\u0442\u044B\u0435 \u043A\u0430\u043D\u0430\u043B\u044B. (MVP \u0432\u0435\u0440\u0441\u0438\u044F \u0434\u043B\u044F Raincord)",
@@ -26396,7 +26556,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
           }
         ],
         id: "ShowHiddenChannels",
-        version: "1.0.0",
+        version: "1.1.0",
         start() {
           var PermissionStore = findByProps("getChannelPermissions", "can");
           var Permissions = findByProps("Permissions", "ActivityTypes")?.Permissions || findByProps("VIEW_CHANNEL") || {
@@ -26405,12 +26565,13 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
           var VIEW_CHANNEL = Permissions.VIEW_CHANNEL;
           if (PermissionStore && VIEW_CHANNEL) {
             unpatches8.push(instead("can", PermissionStore, (args, orig) => {
-              var [permission, context] = args;
+              var permission = args[0];
+              var context = args.length === 3 ? args[2] : args[1];
               if (permission === VIEW_CHANNEL && context && context.guild_id) {
                 var hasAccess = orig.apply(PermissionStore, args);
                 if (!hasAccess) {
                   try {
-                    Object.defineProperty(context, "isHiddenChannel", {
+                    if (!context.isHiddenChannel) Object.defineProperty(context, "isHiddenChannel", {
                       get: () => true,
                       configurable: true
                     });
@@ -26421,36 +26582,37 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
               }
               return orig.apply(PermissionStore, args);
             }));
+            if (PermissionStore.canWithPartialContext) {
+              unpatches8.push(instead("canWithPartialContext", PermissionStore, (args, orig) => {
+                var permission = args[0];
+                var context = args.length === 3 ? args[2] : args[1];
+                if (permission === VIEW_CHANNEL && context && context.guild_id) {
+                  var hasAccess = orig.apply(PermissionStore, args);
+                  if (!hasAccess) {
+                    try {
+                      if (!context.isHiddenChannel) Object.defineProperty(context, "isHiddenChannel", {
+                        get: () => true,
+                        configurable: true
+                      });
+                    } catch (e) {
+                    }
+                    return true;
+                  }
+                }
+                return orig.apply(PermissionStore, args);
+              }));
+            }
           }
-          var ChatComponent = findByProps("Chat", "ChannelChat") || findByName("Chat", false);
+          var ChatComponent = findByProps("Chat", "ChannelChat") || findByName("Chat", false) || findByName("ChannelChat", false);
           if (ChatComponent) {
             try {
               if (ChatComponent.prototype && ChatComponent.prototype.render) {
                 unpatches8.push(after("render", ChatComponent.prototype, function(args, res) {
-                  var channel = this?.props?.channel;
+                  var channel = this?.props?.channel || args[0]?.channel;
                   if (channel && channel.isHiddenChannel) {
-                    if (RNView && RNText) {
-                      return React2.createElement(RNView, {
-                        style: {
-                          flex: 1,
-                          justifyContent: "center",
-                          alignItems: "center",
-                          backgroundColor: "#36393f"
-                        }
-                      }, React2.createElement(RNText, {
-                        style: {
-                          color: "white",
-                          fontSize: 24,
-                          fontWeight: "bold",
-                          marginBottom: 10
-                        }
-                      }, "\u{1F512} \u0421\u043A\u0440\u044B\u0442\u044B\u0439 \u043A\u0430\u043D\u0430\u043B"), React2.createElement(RNText, {
-                        style: {
-                          color: "#b9bbbe",
-                          fontSize: 16
-                        }
-                      }, "\u0423 \u0432\u0430\u0441 \u043D\u0435\u0442 \u043F\u0440\u0430\u0432 \u0434\u043B\u044F \u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440\u0430 \u0438\u0441\u0442\u043E\u0440\u0438\u0438 \u044D\u0442\u043E\u0433\u043E \u043A\u0430\u043D\u0430\u043B\u0430."));
-                    }
+                    return React2.createElement(HiddenChannelUI, {
+                      channel
+                    });
                   }
                   return res;
                 }));
@@ -26458,28 +26620,9 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
                 unpatches8.push(after("default", ChatComponent, (args, res) => {
                   var channel = args[0]?.channel;
                   if (channel && channel.isHiddenChannel) {
-                    if (RNView && RNText) {
-                      return React2.createElement(RNView, {
-                        style: {
-                          flex: 1,
-                          justifyContent: "center",
-                          alignItems: "center",
-                          backgroundColor: "#36393f"
-                        }
-                      }, React2.createElement(RNText, {
-                        style: {
-                          color: "white",
-                          fontSize: 24,
-                          fontWeight: "bold",
-                          marginBottom: 10
-                        }
-                      }, "\u{1F512} \u0421\u043A\u0440\u044B\u0442\u044B\u0439 \u043A\u0430\u043D\u0430\u043B"), React2.createElement(RNText, {
-                        style: {
-                          color: "#b9bbbe",
-                          fontSize: 16
-                        }
-                      }, "\u0423 \u0432\u0430\u0441 \u043D\u0435\u0442 \u043F\u0440\u0430\u0432 \u0434\u043B\u044F \u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440\u0430 \u0438\u0441\u0442\u043E\u0440\u0438\u0438 \u044D\u0442\u043E\u0433\u043E \u043A\u0430\u043D\u0430\u043B\u0430."));
-                    }
+                    return React2.createElement(HiddenChannelUI, {
+                      channel
+                    });
                   }
                   return res;
                 }));
@@ -27483,7 +27626,7 @@ ${ruleJson}
 \`\`\``);
       showToast(`Rule ${localRule.name} copied to clipboard`, findAssetId2("CopyIcon"));
     };
-    return /* @__PURE__ */ jsx(ScrollView29, {
+    return /* @__PURE__ */ jsx(ScrollView30, {
       style: {
         flex: 1
       },
@@ -27566,7 +27709,7 @@ ${ruleJson}
       })
     });
   }
-  var ScrollView29, View34, Keyboard2, InputRow2;
+  var ScrollView30, View34, Keyboard2, InputRow2;
   var init_EditRule = __esm({
     "src/plugins/textreplace/ui/pages/EditRule.tsx"() {
       "use strict";
@@ -27579,7 +27722,7 @@ ${ruleJson}
       init_common();
       init_components();
       init_storage32();
-      ({ ScrollView: ScrollView29, View: View34, Keyboard: Keyboard2 } = ReactNative);
+      ({ ScrollView: ScrollView30, View: View34, Keyboard: Keyboard2 } = ReactNative);
       InputRow2 = ({ label, value, onChange, placeholder, isClearable }) => /* @__PURE__ */ jsx(TableRow, {
         label,
         subLabel: /* @__PURE__ */ jsx(View34, {
@@ -27627,7 +27770,7 @@ ${ruleJson}
       style: {
         flex: 1
       },
-      children: /* @__PURE__ */ jsx(ScrollView30, {
+      children: /* @__PURE__ */ jsx(ScrollView31, {
         contentContainerStyle: {
           paddingBottom: 80
         },
@@ -27674,7 +27817,7 @@ ${ruleJson}
       })
     });
   }
-  var ScrollView30, View35, TableRow6, Stack9, TableRowGroup11;
+  var ScrollView31, View35, TableRow6, Stack9, TableRowGroup11;
   var init_Settings8 = __esm({
     "src/plugins/textreplace/ui/pages/Settings.tsx"() {
       "use strict";
@@ -27686,7 +27829,7 @@ ${ruleJson}
       init_components();
       init_storage32();
       init_EditRule();
-      ({ ScrollView: ScrollView30, View: View35 } = ReactNative);
+      ({ ScrollView: ScrollView31, View: View35 } = ReactNative);
       ({ TableRow: TableRow6, Stack: Stack9, TableRowGroup: TableRowGroup11 } = components_exports);
     }
   });
@@ -28180,7 +28323,7 @@ ${ruleJson}
     var [query, setQuery] = React2.useState("");
     var langs = settings3.translator === 0 ? DeepLLangs : GTranslateLangs;
     var filteredLangs = Object.entries(langs).filter(([key]) => key.toLowerCase().includes(query.toLowerCase()));
-    return /* @__PURE__ */ jsxs(ScrollView31, {
+    return /* @__PURE__ */ jsxs(ScrollView32, {
       style: {
         flex: 1
       },
@@ -28219,7 +28362,7 @@ ${ruleJson}
       ]
     });
   }
-  var ScrollView31;
+  var ScrollView32;
   var init_TargetLang = __esm({
     "src/plugins/translator/settings/TargetLang.tsx"() {
       "use strict";
@@ -28231,7 +28374,7 @@ ${ruleJson}
       init_components();
       init_lang();
       init_storage33();
-      ({ ScrollView: ScrollView31 } = ReactNative);
+      ({ ScrollView: ScrollView32 } = ReactNative);
     }
   });
 
@@ -28267,7 +28410,7 @@ ${ruleJson}
         ]
       });
     };
-    return /* @__PURE__ */ jsx(ScrollView32, {
+    return /* @__PURE__ */ jsx(ScrollView33, {
       style: {
         flex: 1
       },
@@ -28320,7 +28463,7 @@ ${ruleJson}
       })
     });
   }
-  var ScrollView32, Text9, showSimpleActionSheet6, hideActionSheet9;
+  var ScrollView33, Text9, showSimpleActionSheet6, hideActionSheet9;
   var init_settings25 = __esm({
     "src/plugins/translator/settings/index.tsx"() {
       "use strict";
@@ -28333,7 +28476,7 @@ ${ruleJson}
       init_components();
       init_storage33();
       init_TargetLang();
-      ({ ScrollView: ScrollView32, Text: Text9 } = ReactNative);
+      ({ ScrollView: ScrollView33, Text: Text9 } = ReactNative);
       ({ showSimpleActionSheet: showSimpleActionSheet6 } = findByProps("showSimpleActionSheet"));
       ({ hideActionSheet: hideActionSheet9 } = findByProps("openLazy", "hideActionSheet"));
     }
@@ -28459,7 +28602,7 @@ ${ruleJson}
       message.id
     ]);
     return /* @__PURE__ */ jsx(Fragment, {
-      children: /* @__PURE__ */ jsx(ScrollView33, {
+      children: /* @__PURE__ */ jsx(ScrollView34, {
         style: {
           flex: 1,
           marginVertical: 10
@@ -28509,7 +28652,7 @@ ${ruleJson}
       })
     });
   }
-  var ScrollView33;
+  var ScrollView34;
   var init_RawPage = __esm({
     "src/plugins/viewraw/patches/RawPage.tsx"() {
       "use strict";
@@ -28522,7 +28665,7 @@ ${ruleJson}
       init_common();
       init_components();
       init_cleanmessage();
-      ({ ScrollView: ScrollView33 } = ReactNative);
+      ({ ScrollView: ScrollView34 } = ReactNative);
     }
   });
 
