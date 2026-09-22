@@ -26602,9 +26602,23 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
               }));
             }
           }
-          var ChatComponent = findByProps("Chat", "ChannelChat") || findByName("Chat", false) || findByName("ChannelChat", false);
-          if (ChatComponent) {
+          var ChatComponents = [
+            findByName("Chat", false),
+            findByName("ChannelChat", false),
+            findByProps("Chat", "ChannelChat")
+          ];
+          ChatComponents.forEach((ChatComponent) => {
+            if (!ChatComponent) return;
             try {
+              var patchFn2 = (args, res) => {
+                var channel = args[0]?.channel || res?.props?.channel || res?.props?.children?.props?.channel;
+                if (channel && channel.isHiddenChannel) {
+                  return React2.createElement(HiddenChannelUI, {
+                    channel
+                  });
+                }
+                return res;
+              };
               if (ChatComponent.prototype && ChatComponent.prototype.render) {
                 unpatches8.push(after("render", ChatComponent.prototype, function(args, res) {
                   var channel = this?.props?.channel || args[0]?.channel;
@@ -26615,20 +26629,19 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
                   }
                   return res;
                 }));
-              } else {
-                unpatches8.push(after("default", ChatComponent, (args, res) => {
-                  var channel = args[0]?.channel;
-                  if (channel && channel.isHiddenChannel) {
-                    return React2.createElement(HiddenChannelUI, {
-                      channel
-                    });
-                  }
-                  return res;
-                }));
+              }
+              if (ChatComponent.type) {
+                unpatches8.push(after("type", ChatComponent, patchFn2));
+              }
+              if (typeof ChatComponent === "function" || ChatComponent.default) {
+                unpatches8.push(after("default", ChatComponent, patchFn2));
+                if (typeof ChatComponent === "function") {
+                  unpatches8.push(after(ChatComponent.name || "Chat", ChatComponent, patchFn2));
+                }
               }
             } catch (e) {
             }
-          }
+          });
         },
         stop() {
           unpatches8.forEach((unpatch6) => {
