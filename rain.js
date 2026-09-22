@@ -26373,9 +26373,9 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
     default: () => ShowHiddenChannels_default
   });
   function HiddenChannelUI({ channel }) {
-    console.log("[ShowHiddenChannels] Rendering HiddenChannelUI for channel:", channel?.id);
+    logger.info("[ShowHiddenChannels] Rendering HiddenChannelUI for channel:", channel?.id);
     if (!RNView || !RNText || !RNScrollView || !RNImage) {
-      console.log("[ShowHiddenChannels] ERROR: Missing RN components!", {
+      logger.info("[ShowHiddenChannels] ERROR: Missing RN components!", {
         RNView: !!RNView,
         RNText: !!RNText,
         RNScrollView: !!RNScrollView,
@@ -26548,6 +26548,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
       init_metro();
       init_patcher();
       init_common();
+      init_logger();
       import_react_native49 = __toESM(require_react_native());
       unpatches8 = [];
       RNText = import_react_native49.Text || findByProps("Text")?.Text;
@@ -26566,13 +26567,13 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
         id: "ShowHiddenChannels",
         version: "1.1.1",
         start() {
-          console.log("[ShowHiddenChannels] Plugin started!");
+          logger.info("[ShowHiddenChannels] Plugin started!");
           var PermissionStore = findByProps("getChannelPermissions", "can");
           var Permissions = findByProps("Permissions", "ActivityTypes")?.Permissions || findByProps("VIEW_CHANNEL") || {
             VIEW_CHANNEL: 1024n
           };
           var VIEW_CHANNEL = Permissions.VIEW_CHANNEL;
-          console.log("[ShowHiddenChannels] Stores found:", {
+          logger.info("[ShowHiddenChannels] Stores found:", {
             PermissionStore: !!PermissionStore,
             VIEW_CHANNEL: !!VIEW_CHANNEL
           });
@@ -26621,7 +26622,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
             findByName("ChannelChat", false),
             findByProps("Chat", "ChannelChat")
           ];
-          console.log("[ShowHiddenChannels] ChatComponents found:", ChatComponents.map((c2) => !!c2));
+          logger.info("[ShowHiddenChannels] ChatComponents found:", ChatComponents.map((c2) => !!c2));
           ChatComponents.forEach((ChatComponent, index) => {
             if (!ChatComponent) return;
             try {
@@ -26629,7 +26630,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
                 var channel = args[0]?.channel || res?.props?.channel || res?.props?.children?.props?.channel;
                 if (channel) {
                   if (channel.isHiddenChannel) {
-                    console.log("[ShowHiddenChannels] patchFn: Channel IS hidden. Rendering UI for:", channel.id);
+                    logger.info("[ShowHiddenChannels] patchFn: Channel IS hidden. Rendering UI for:", channel.id);
                     return React2.createElement(HiddenChannelUI, {
                       channel
                     });
@@ -26638,7 +26639,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
                 return res;
               };
               if (ChatComponent.prototype && ChatComponent.prototype.render) {
-                console.log("[ShowHiddenChannels] Patching prototype.render on component", index);
+                logger.info("[ShowHiddenChannels] Patching prototype.render on component", index);
                 unpatches8.push(after("render", ChatComponent.prototype, function(args, res) {
                   var channel = this?.props?.channel || args[0]?.channel;
                   if (channel && channel.isHiddenChannel) {
