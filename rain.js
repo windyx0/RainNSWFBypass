@@ -26373,7 +26373,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
     default: () => ShowHiddenChannels_default
   });
   function HiddenChannelUI({ channel }) {
-    if (!RNView || !RNText) return null;
+    if (!RNView || !RNText || !RNScrollView || !RNImage) return null;
     var GuildStore2 = findByProps("getGuild");
     var UserStore2 = findByProps("getUser", "getCurrentUser");
     var Permissions = findByProps("Permissions", "ActivityTypes")?.Permissions || {
@@ -26470,8 +26470,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
       }, `Allowed users and roles (${allowedRoles.length + allowedUsers.length})`), React2.createElement(RNView, {
         style: {
           flexDirection: "row",
-          flexWrap: "wrap",
-          gap: 8
+          flexWrap: "wrap"
         }
       }, allowedUsers.map((u) => React2.createElement(RNView, {
         key: u.id,
@@ -26487,7 +26486,7 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
         }
       }, React2.createElement(RNImage, {
         source: {
-          uri: u.avatar ? `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.png?size=32` : `https://cdn.discordapp.com/embed/avatars/${parseInt(u.discriminator) % 5}.png`
+          uri: u.avatar ? `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.png?size=32` : `https://cdn.discordapp.com/embed/avatars/${(parseInt(u.discriminator || "0") || 0) % 5}.png`
         },
         style: {
           width: 24,
