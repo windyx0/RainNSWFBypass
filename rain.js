@@ -26618,55 +26618,78 @@ Missing the redesign ${isFunction ? "function" : "component"}: ${prop}. Please b
                 }));
               }
             }
-            var ChatComponents = [
-              findByName("Chat", false),
-              findByName("ChannelChat", false),
-              findByProps("Chat", "ChannelChat")
-            ];
-            logger.info("[ShowHiddenChannels] ChatComponents found:", ChatComponents.map((c2) => !!c2));
-            ChatComponents.forEach((ChatComponent, index) => {
-              if (!ChatComponent) return;
-              try {
-                var patchFn2 = (args, res) => {
-                  var channel = args[0]?.channel || res?.props?.channel || res?.props?.children?.props?.channel;
-                  if (channel) {
-                    if (channel.isHiddenChannel) {
-                      logger.info("[ShowHiddenChannels] patchFn: Channel IS hidden. Rendering UI for:", channel.id);
-                      return React2.createElement(HiddenChannelUI, {
-                        channel
-                      });
-                    }
-                  }
-                  return res;
-                };
-                if (ChatComponent.prototype && ChatComponent.prototype.render) {
-                  logger.info("[ShowHiddenChannels] Patching prototype.render on component", index);
-                  unpatches8.push(after("render", ChatComponent.prototype, function(args, res) {
-                    var channel = this?.props?.channel || args[0]?.channel;
-                    if (channel && channel.isHiddenChannel) {
-                      logger.info("[ShowHiddenChannels] prototype.render: Channel IS hidden. Rendering UI for:", channel.id);
-                      return React2.createElement(HiddenChannelUI, {
-                        channel
-                      });
-                    }
-                    return res;
-                  }));
+            var ChannelStore2 = findByProps("getChannel", "hasChannel");
+            var chatModule = findByProps("Chat");
+            if (chatModule) {
+              var patchFn2 = (args, res) => {
+                var props = args[0] || {};
+                var channelId = props.channelId || props.channel?.id;
+                if (!channelId) {
+                  channelId = props.route?.params?.channelId || res?.props?.channelId || res?.props?.channel?.id;
                 }
-                if (ChatComponent.type) {
-                  logger.info("[ShowHiddenChannels] Patching type on component", index);
-                  unpatches8.push(after("type", ChatComponent, patchFn2));
-                }
-                if (typeof ChatComponent === "function" || ChatComponent.default) {
-                  logger.info("[ShowHiddenChannels] Patching default/function on component", index);
-                  unpatches8.push(after("default", ChatComponent, patchFn2));
-                  if (typeof ChatComponent === "function") {
-                    unpatches8.push(after(ChatComponent.name || "Chat", ChatComponent, patchFn2));
+                if (channelId && ChannelStore2) {
+                  var channel = ChannelStore2.getChannel(channelId);
+                  if (channel && channel.isHiddenChannel) {
+                    return React2.createElement(HiddenChannelUI, {
+                      channel
+                    });
                   }
                 }
-              } catch (e) {
-                logger.info("[ShowHiddenChannels] Error patching component", index, e);
+                return res;
+              };
+              if (typeof chatModule.Chat === "function" || typeof chatModule.Chat === "object") {
+                try {
+                  unpatches8.push(after("Chat", chatModule, patchFn2));
+                } catch (e) {
+                }
               }
-            });
+              if (typeof chatModule.default === "function" || typeof chatModule.default === "object") {
+                try {
+                  unpatches8.push(after("default", chatModule, patchFn2));
+                } catch (e) {
+                }
+              }
+              if (typeof chatModule.ChannelChat === "function" || typeof chatModule.ChannelChat === "object") {
+                try {
+                  unpatches8.push(after("ChannelChat", chatModule, patchFn2));
+                } catch (e) {
+                }
+              }
+            }
+            var messagesModule = findByProps("MessagesWrapper") || findByProps("ChannelMessages");
+            if (messagesModule) {
+              var patchFn1 = (args, res) => {
+                var props = args[0] || {};
+                var channelId = props.channelId || props.channel?.id;
+                if (channelId && ChannelStore2) {
+                  var channel = ChannelStore2.getChannel(channelId);
+                  if (channel && channel.isHiddenChannel) {
+                    return React2.createElement(HiddenChannelUI, {
+                      channel
+                    });
+                  }
+                }
+                return res;
+              };
+              if (messagesModule.MessagesWrapper) {
+                try {
+                  unpatches8.push(after("MessagesWrapper", messagesModule, patchFn1));
+                } catch (e) {
+                }
+              }
+              if (messagesModule.default) {
+                try {
+                  unpatches8.push(after("default", messagesModule, patchFn1));
+                } catch (e) {
+                }
+              }
+              if (messagesModule.ChannelMessages) {
+                try {
+                  unpatches8.push(after("ChannelMessages", messagesModule, patchFn1));
+                } catch (e) {
+                }
+              }
+            }
           } catch (e) {
             import_react_native49.Alert.alert("ShowHiddenChannels Error", String(e.message || e));
             logger.error("[ShowHiddenChannels] Fatal error in start:", e);
